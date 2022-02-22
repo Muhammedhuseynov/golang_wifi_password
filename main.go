@@ -49,7 +49,7 @@ func makeObjCenter(obj fyne.CanvasObject) *fyne.Container {
 
 func main() {
 	a := app.New()
-	w := a.NewWindow("Hello")
+	w := a.NewWindow("Show me Wifi Password")
 	w.Resize(fyne.NewSize(500, 430))
 	w.CenterOnScreen()
 	w.SetFixedSize(true)
