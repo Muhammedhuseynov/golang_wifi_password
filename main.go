@@ -13,43 +13,79 @@ import (
 // GUI PART
 var wifpasword = binding.NewString()
 var wifiPasswords map[string]string
+var searchEntry = widget.NewEntry()
+
 var radioBtn = widget.NewRadioGroup([]string{},
 	func(val string) {
-		wifpasword.Set(wifiPasswords[val])
+		if val != "" {
+			wifpasword.Set(wifiPasswords[val])
+		} else {
+			wifpasword.Set("*************")
+			//fmt.Println("Emptyyy")
+		}
+
 	})
 
 //function for button (get wifi name and wifi passwords)
 func searchWifis() {
-	wifi_names := pck.GetWifiNames()
+
 	wifpasword.Set("Searching.....")
-	wifiPasswords = pck.WifiPasswords(wifi_names)
-	for _, wifi := range wifi_names {
-		radioBtn.Options = append(radioBtn.Options, wifi)
+	wifiPasswords = pck.WifiPasswords(pck.GetWifiNames())
+
+	for wifiName, _ := range wifiPasswords {
+		radioBtn.Options = append(radioBtn.Options, wifiName)
 	}
 	radioBtn.Refresh()
-	wifpasword.Set("Done! Click on name of Wifi")
+	wifpasword.Set("Done! (************) Click on name of Wifi ")
+	searchEntry.PlaceHolder = "Just write the name of the wifi here! Not need Click anything"
+	searchEntry.Enable()
+
 }
 
 //make label on center
 func makeObjCenter(obj fyne.CanvasObject) *fyne.Container {
 	return container.New(layout.NewHBoxLayout(), layout.NewSpacer(), obj, layout.NewSpacer())
 }
+
 func main() {
 	a := app.New()
 	w := a.NewWindow("Hello")
-	w.Resize(fyne.NewSize(500, 389))
+	w.Resize(fyne.NewSize(500, 430))
 	w.CenterOnScreen()
 	w.SetFixedSize(true)
 
 	wifpasword.Set("See Connected wifi Passwords")
 	name_lbl := makeObjCenter(widget.NewLabelWithData(wifpasword))
 
+	//Search button
+	btnSearch := widget.NewButton("Search", nil)
+	changedBtn := func() {
+		if btnSearch.Text == "Search" {
+			btnSearch.Disable()
+			searchWifis()
+		}
+
+		btnSearch.Refresh()
+	}
+	btnSearch.OnTapped = changedBtn
+
+	//Search Entry
+	searchEntry.PlaceHolder = "No WIFI, Search them!"
+	searchEntry.OnChanged = func(s string) {
+		wifpasword.Set(wifiPasswords[s])
+
+		if s != "" {
+			btnSearch.Disable()
+		} else {
+			btnSearch.Enable()
+		}
+	}
+	searchEntry.Disable()
+
 	// Wifi name / list
 	var wifiNameList = container.NewVScroll(radioBtn)
 	wifiNameList.SetMinSize(fyne.NewSize(300, 300))
 
-	//Search button
-	btnSearch := widget.NewButton("Search", searchWifis)
-	w.SetContent(container.NewVBox(container.NewVBox(name_lbl), wifiNameList, btnSearch))
+	w.SetContent(container.NewVBox(container.NewVBox(name_lbl), searchEntry, wifiNameList, btnSearch))
 	w.ShowAndRun()
 }

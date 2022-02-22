@@ -57,5 +57,12 @@ func WifiPasswords(wifinames []string) map[string]string {
 			}
 		}
 	}
+	//for k, v := range wifiPasws {
+	//	fmt.Printf("%s : %s\n", k, v)
+	//	//if v == "" {
+	//	//	fmt.Printf("Empty: %s\n", k)
+	//	//	delete(wifiPasws, k)
+	//	//}
+	//}
 	return wifiPasws
 }
